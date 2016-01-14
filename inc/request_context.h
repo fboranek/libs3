@@ -29,6 +29,8 @@
 
 #include "libs3.h"
 
+typedef void CURLM;
+
 struct S3RequestContext
 {
     CURLM *curlm;

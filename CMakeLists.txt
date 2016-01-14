@@ -1,4 +1,4 @@
-project(s3)
+project(libs3)
 
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -48,32 +48,37 @@ add_definitions(
 ################################################################################
 include_directories(inc)
 
-file(GLOB s3_PUBLIC_HEADERS inc/*.h)
-file(GLOB s3_PUBLIC_PRIVATE inc/mingw/*.h)
-file(GLOB s3_SOURCES src/*.c)
-file(GLOB s3_Win_SOURCES src/mingw*.c)
-file(GLOB s3_client_SOURCES src/s3.c)
-list(REMOVE_ITEM s3_SOURCES ${s3_client_SOURCES})
-list(REMOVE_ITEM s3_SOURCES ${s3_Win_SOURCES})
+file(GLOB libs3_PUBLIC_HEADERS inc/*.h)
+file(GLOB libs3_PUBLIC_PRIVATE inc/mingw/*.h)
+file(GLOB libs3_SOURCES src/*.c)
+file(GLOB libs3_Win_SOURCES src/mingw*.c)
+file(GLOB libs3_client_SOURCES src/s3.c)
+list(REMOVE_ITEM libs3_SOURCES ${libs3_client_SOURCES})
+list(REMOVE_ITEM libs3_SOURCES ${libs3_Win_SOURCES})
 
-source_group("Public Header Files" FILES ${s3_PUBLIC_HEADERS})
-source_group("Source Files" FILES ${s3_SOURCES})
+source_group("Public Header Files" FILES ${libs3_PUBLIC_HEADERS})
+source_group("Source Files" FILES ${libs3_SOURCES})
 
 IF(MSVC)
-	if (MSVC_VERSION LESS 1900)
+	set(libs3_SOURCES ${libs3_SOURCES} ${libs3_Win_SOURCES})
+#	if (MSVC_VERSION LESS 1900) # unfortunetely C99 still not work with VS 2015
 		message (STATUS "Enabling patch for Visual Studio 2010 and lower")
-		set_source_files_properties(${s3_SOURCES} ${s3_PUBLIC_HEADERS} PROPERTIES LANGUAGE CXX )
+		set_source_files_properties(${libs3_SOURCES} ${libs3_PUBLIC_HEADERS} PROPERTIES LANGUAGE CXX )
 		add_definitions(-DMSVC_NO_C99=1)
-	endif()
-	
-	set(s3_SOURCES ${s3_SOURCES} mswin/libs3.def)
+#	endif()
+
+	set(libs3_SOURCES ${libs3_SOURCES} mswin/libs3.def)
 	add_definitions(-Ds3_EXPORTS=1)
 	include_directories(inc/mingw)
 ENDIF()
 
-add_library(s3 SHARED ${s3_SOURCES} ${s3_PUBLIC_HEADERS} ${s3_PUBLIC_PRIVATE})
-target_link_libraries(s3 xml curl)
-install(TARGETS s3
+add_library(libs3 SHARED ${libs3_SOURCES} ${libs3_PUBLIC_HEADERS} ${libs3_PUBLIC_PRIVATE})
+target_link_libraries(libs3 xml curl)
+set_target_properties(libs3 PROPERTIES
+	DEBUG_OUTPUT_NAME "libs3_d"
+	RELWITHDEBINFO_OUTPUT_NAME "libs3"
+)
+install(TARGETS libs3
 	RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
@@ -81,11 +86,8 @@ install(TARGETS s3
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/inc/ DESTINATION include/s3)
 
 IF(MSVC)
-	target_link_libraries(s3 ws2_32)
-	set_target_properties(s3 PROPERTIES
-		DEBUG_OUTPUT_NAME "s3_d"
-		RELWITHDEBINFO_OUTPUT_NAME "s3"
-	)
+	target_link_libraries(libs3 ws2_32)
+	
 	install(DIRECTORY "${CMAKE_BINARY_DIR}/Debug/"           DESTINATION bin CONFIGURATIONS "DEBUG" FILES_MATCHING PATTERN "*.pdb")
 	install(DIRECTORY "${CMAKE_BINARY_DIR}/RelWithDebInfo/"  DESTINATION bin CONFIGURATIONS "RELWITHDEBINFO" FILES_MATCHING PATTERN "*.pdb")
 ENDIF()
