@@ -12,7 +12,7 @@ endif()
 set(EXT_LIBS_IMPORT CACHE FILEPATH "Definition for libraries 'xml' and 'curl' (import.cmake)")
 set(curl_PUBLIC_INCLUDES CACHE FILEPATH "Custom includes of CURL library")
 set(xml_PUBLIC_INCLUDES CACHE FILEPATH "Custom includes of CURL library")
-set(CMAKE_DEBUG_POSTFIX CACHE FILEPATH "Postfix for debug library name. Usualy '_d'")
+set(CMAKE_DEBUG_POSTFIX CACHE STRING "Postfix for debug library name. Usualy '_d'")
 
 
 
@@ -107,6 +107,8 @@ set(variables
   CMAKE_CXX_FLAGS_MINSIZEREL
   CMAKE_CXX_FLAGS_RELEASE
   CMAKE_CXX_FLAGS_RELWITHDEBINFO
+  EXT_LIBS_IMPORT
+  CMAKE_DEBUG_POSTFIX
 )
 message(STATUS "Initial build flags:")
 foreach(variable ${variables})
