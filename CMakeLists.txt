@@ -12,6 +12,7 @@ endif()
 set(EXT_LIBS_IMPORT CACHE FILEPATH "Definition for libraries 'xml' and 'curl' (import.cmake)")
 set(curl_PUBLIC_INCLUDES CACHE FILEPATH "Custom includes of CURL library")
 set(xml_PUBLIC_INCLUDES CACHE FILEPATH "Custom includes of CURL library")
+set(CMAKE_DEBUG_POSTFIX CACHE FILEPATH "Postfix for debug library name. Usualy '_d'")
 
 
 
@@ -74,10 +75,6 @@ ENDIF()
 
 add_library(libs3 SHARED ${libs3_SOURCES} ${libs3_PUBLIC_HEADERS} ${libs3_PUBLIC_PRIVATE})
 target_link_libraries(libs3 xml curl)
-set_target_properties(libs3 PROPERTIES
-	DEBUG_OUTPUT_NAME "libs3_d"
-	RELWITHDEBINFO_OUTPUT_NAME "libs3"
-)
 install(TARGETS libs3
 	RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
@@ -87,9 +84,16 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/inc/ DESTINATION include/s3)
 
 IF(MSVC)
 	target_link_libraries(libs3 ws2_32)
+	set_target_properties(libs3 PROPERTIES
+		OUTPUT_NAME "libs3"
+	)
 	
 	install(DIRECTORY "${CMAKE_BINARY_DIR}/Debug/"           DESTINATION bin CONFIGURATIONS "DEBUG" FILES_MATCHING PATTERN "*.pdb")
 	install(DIRECTORY "${CMAKE_BINARY_DIR}/RelWithDebInfo/"  DESTINATION bin CONFIGURATIONS "RELWITHDEBINFO" FILES_MATCHING PATTERN "*.pdb")
+ELSE()
+	set_target_properties(libs3 PROPERTIES
+		OUTPUT_NAME "s3"
+	)
 ENDIF()
 
 ################################################################################
