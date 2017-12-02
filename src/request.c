@@ -1449,10 +1449,13 @@ S3Status request_api_initialize(const char *userAgentInfo, int flags,
                  utsn.machine[0] ? " " : "", utsn.machine);
     }
 
-    snprintf(userAgentG, sizeof(userAgentG),
-             "Mozilla/4.0 (Compatible; %s; libs3 %s.%s; %s)",
-             userAgentInfo, LIBS3_VER_MAJOR, LIBS3_VER_MINOR, platform);
+	const char *mav = LIBS3_VER_MAJOR;
+	const char *miv = LIBS3_VER_MINOR;
 
+    snprintf(userAgentG, sizeof(userAgentG), 
+             "Mozilla/4.0 (Compatible; %s; libs3 %s.%s; %s)",
+             userAgentInfo, mav, miv, platform);
+    
     xmlInitParser();
     return S3StatusOK;
 }

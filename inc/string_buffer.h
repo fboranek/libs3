@@ -29,6 +29,12 @@
 
 #include <stdio.h>
 
+#ifdef WIN32
+#ifndef snprintf
+#  define snprintf _snprintf
+#endif
+#endif
+
 
 // Declare a string_buffer with the given name of the given maximum length
 #define string_buffer(name, len)                                        \

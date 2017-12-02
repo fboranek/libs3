@@ -29,9 +29,10 @@
 
 #include "libs3.h"
 
+
 struct S3RequestContext
 {
-    CURLM *curlm;
+    void *curlm;
     
     int verifyPeerSet;
     long verifyPeer;

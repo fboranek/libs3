@@ -185,7 +185,7 @@ void simplexml_initialize(SimpleXml *simpleXml,
 void simplexml_deinitialize(SimpleXml *simpleXml)
 {
     if (simpleXml->xmlParser) {
-        xmlFreeParserCtxt(simpleXml->xmlParser);
+        xmlFreeParserCtxt((xmlParserCtxtPtr)simpleXml->xmlParser);
     }
 }
 

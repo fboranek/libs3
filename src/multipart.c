@@ -531,8 +531,11 @@ static S3Status make_list_multipart_callback(ListMultipartData *lmData)
                        !strcmp(lmData->isTruncated, "1")) ? 1 : 0;
 
     // Convert the contents
-    S3ListMultipartUpload uploads[lmData->uploadsCount];
-
+#ifdef MSVC_NO_C99
+	S3ListMultipartUpload *uploads = (S3ListMultipartUpload *) malloc(sizeof(S3ListMultipartUpload) * lmData->uploadsCount);
+#else
+	S3ListMultipartUpload uploads[lmData->uploadsCount];
+#endif
     int uploadsCount = lmData->uploadsCount;
     for (i = 0; i < uploadsCount; i++) {
         S3ListMultipartUpload *uploadDest = &(uploads[i]);
@@ -551,15 +554,25 @@ static S3Status make_list_multipart_callback(ListMultipartData *lmData)
 
     // Make the common prefixes array
     int commonPrefixesCount = lmData->commonPrefixesCount;
-    char *commonPrefixes[commonPrefixesCount];
+#ifdef MSVC_NO_C99
+	char **commonPrefixes = (char **)malloc(sizeof(char*) * commonPrefixesCount);
+#else
+	char *commonPrefixes[commonPrefixesCount];
+#endif
     for (i = 0; i < commonPrefixesCount; i++) {
         commonPrefixes[i] = lmData->commonPrefixes[i];
     }
 
-    return (*(lmData->listMultipartCallback))
+	S3Status result = (*(lmData->listMultipartCallback))
         (isTruncated, lmData->nextKeyMarker, lmData->nextUploadIdMarker,
          uploadsCount, uploads, commonPrefixesCount,
          (const char **) commonPrefixes, lmData->callbackData);
+
+#ifdef MSVC_NO_C99
+	free(uploads);
+	free(commonPrefixes);
+#endif
+	return result;
 }
 
 
@@ -572,7 +585,11 @@ static S3Status make_list_parts_callback(ListPartsData *lpData)
                        !strcmp(lpData->isTruncated, "1")) ? 1 : 0;
 
     // Convert the contents
-    S3ListPart Parts[lpData->partsCount];
+#ifdef MSVC_NO_C99
+	S3ListPart *Parts = (S3ListPart *)malloc(sizeof(S3ListPart) * lpData->partsCount);
+#else
+	S3ListPart Parts[lpData->partsCount];
+#endif
     int partsCount = lpData->partsCount;
     for (i = 0; i < partsCount; i++) {
         S3ListPart *partDest = &(Parts[i]);
@@ -582,12 +599,17 @@ static S3Status make_list_parts_callback(ListPartsData *lpData)
         partDest->size = parseUnsignedInt(partSrc->size);
         partDest->lastModified = parseIso8601Time(partSrc->lastModified);
     }
-
-    return (*(lpData->listPartsCallback))
+    
+	S3Status result = (*(lpData->listPartsCallback))
         (isTruncated, lpData->nextPartNumberMarker, lpData->initiatorId,
          lpData->initiatorDisplayName, lpData->ownerId,
          lpData->ownerDisplayName, lpData->storageClass, partsCount,
          lpData->handlePartsStart, Parts, lpData->callbackData);
+    
+#ifdef MSVC_NO_C99
+    free(Parts);
+#endif
+    return result;
 }
 
 

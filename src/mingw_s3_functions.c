@@ -24,6 +24,8 @@
  *
  ************************************************************************** **/
 
+#include <Windows.h>
+
 int setenv(const char *a, const char *b, int c)
 {
     (void) c;
